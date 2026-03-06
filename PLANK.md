@@ -1,7 +1,7 @@
 # PLANK Standard
 
 **Plaintext Local Agile Notes & Kanban**
-Version: 1.0.0 | License: CC0
+Version: 1.1.0 | License: CC0
 
 > A file-system-native project management standard for Git repositories.
 > Any repo that follows this spec can be read, written, and automated by humans, CLI tools, and AI agents without external services.
@@ -10,22 +10,32 @@ Version: 1.0.0 | License: CC0
 
 ## Table of Contents
 
-1. [Philosophy](#1-philosophy)
-2. [Directory Layout](#2-directory-layout)
-3. [Issue File Format](#3-issue-file-format)
-4. [Frontmatter Schema](#4-frontmatter-schema)
-5. [Status Lifecycle](#5-status-lifecycle)
-6. [Naming Conventions](#6-naming-conventions)
-7. [Linking & Relations](#7-linking--relations)
-8. [Git Conventions](#8-git-conventions)
-9. [Sprint & Milestone Files](#9-sprint--milestone-files)
-10. [Consuming This Standard](#10-consuming-this-standard)
-11. [Minimal vs Full Layout](#11-minimal-vs-full-layout)
+1. [Zen of PLANK](#1-zen-of-plank)
+2. [Philosophy](#2-philosophy)
+3. [Directory Layout](#3-directory-layout)
+4. [Issue File Format](#4-issue-file-format)
+5. [Frontmatter Schema](#5-frontmatter-schema)
+6. [Status Lifecycle](#6-status-lifecycle)
+7. [Naming Conventions](#7-naming-conventions)
+8. [Epics](#8-epics)
+9. [Linking & Relations](#9-linking--relations)
+10. [Conventions](#10-conventions)
+11. [Consuming This Standard](#11-consuming-this-standard)
 12. [Changelog](#12-changelog)
 
 ---
 
-## 1. Philosophy
+## 1. Zen of PLANK
+
+- Files are the database. Git is the audit log.
+- Define the minimum shared contract. Everything else is each project's choice.
+- A convention that fits in one sentence is better than a configuration file.
+- If a tool can't read it with `grep` and a YAML parser, it's too complex.
+- Start with issues. Add structure only when the pain arrives.
+
+---
+
+## 2. Philosophy
 
 - **Files are the database.** No external service, no proprietary format.
 - **Git is the audit log.** Every state change is a commit.
@@ -34,7 +44,7 @@ Version: 1.0.0 | License: CC0
 
 ---
 
-## 2. Directory Layout
+## 3. Directory Layout
 
 ```plaintext
 <repo-root>/
@@ -43,17 +53,17 @@ Version: 1.0.0 | License: CC0
     │   ├── PROJ-001.md
     │   ├── PROJ-002.md
     │   └── PROJ-003.md
-    ├── sprints/            # sprint / milestone definitions (optional)
-    │   └── 2026-S01.md
     └── epics/              # epic definitions (optional)
         └── EP-01-auth.md
 ```
 
-`.plank/` is a hidden directory by convention so it does not clutter the repo root, but is always present and discoverable by tooling. Issue status is tracked exclusively via the `status` frontmatter field—there are no subfolders for status.
+`.plank/` is a hidden directory by convention so it does not clutter the repo root, but is always present and discoverable by tooling. Issue status is tracked exclusively via the `status` frontmatter field — there are no subfolders for status.
+
+Only `issues/` is required. Projects may add directories as needed.
 
 ---
 
-## 3. Issue File Format
+## 4. Issue File Format
 
 Every issue is a single `.md` file. The structure is:
 
@@ -85,13 +95,9 @@ priority: high
 assignee: yu-jung
 labels: [frontend, ui, accessibility]
 epic: EP-01-auth
-sprint: 2026-S01
 created: 2026-02-26
 updated: 2026-02-28
-estimate: 3
-due: 2026-03-10
 blocked-by: [PROJ-039]
-blocks: []
 ---
 
 # Implement dark mode toggle
@@ -109,7 +115,7 @@ Should respect `prefers-color-scheme` on first load.
 ## Notes / Comments
 
 ### 2026-02-26 @yu-jung
-Initial spec drafted. Waiting on design token decisions from EP-01.
+Initial spec drafted. Waiting on design token decisions.
 
 ### 2026-02-28 @wei-chen
 Design tokens confirmed. Unblocking this after PROJ-039 merges.
@@ -117,50 +123,31 @@ Design tokens confirmed. Unblocking this after PROJ-039 merges.
 
 ---
 
-## 4. Frontmatter Schema
+## 5. Frontmatter Schema
 
-All fields use YAML. Fields marked **required** must be present. All others are optional but recommended.
+All fields use YAML. Only the following fields are **required**:
 
-| Field        | Type                 | Required | Description                                                        |
-|--------------|----------------------|----------|--------------------------------------------------------------------|
-| `id`         | `string`             | ✅       | Unique issue identifier. Format: `{PREFIX}-{NNN}`. e.g. `PROJ-042` |
-| `title`      | `string`             | ✅       | Short imperative sentence describing the task                      |
-| `status`     | `enum`               | ✅       | See [Status Lifecycle](#5-status-lifecycle)                        |
-| `priority`   | `enum`               | ✅       | `critical` \| `high` \| `medium` \| `low`                          |
-| `created`    | `date`               | ✅       | ISO 8601 date: `YYYY-MM-DD`                                        |
-| `updated`    | `date`               | ✅       | ISO 8601 date of last meaningful change                            |
-| `assignee`   | `string`             | —        | GitHub username or identifier (no `@`)                             |
-| `labels`     | `string[]`           | —        | Freeform tags. Lowercase, hyphen-separated                         |
-| `epic`       | `string`             | —        | Epic file reference without extension. e.g. `EP-01-auth`           |
-| `sprint`     | `string`             | —        | Sprint file reference. e.g. `2026-S01`                             |
-| `estimate`   | `number`             | —        | Story points or hours (unit defined per project)                   |
-| `due`        | `date`               | —        | ISO 8601 target completion date                                    |
-| `blocked-by` | `string[]`           | —        | List of issue IDs this issue cannot proceed without                |
-| `blocks`     | `string[]`           | —        | List of issue IDs this issue is blocking                           |
-| `parent`     | `string`             | —        | Parent issue ID for sub-tasks                                      |
-| `pr`         | `string \| string[]` | —        | Pull request URL(s) associated with this issue                     |
+| Field      | Type     | Description                                                        |
+|------------|----------|--------------------------------------------------------------------|
+| `id`       | `string` | Unique issue identifier. Format: `{PREFIX}-{NNN}`. e.g. `PROJ-042` |
+| `title`    | `string` | Short imperative sentence describing the task                      |
+| `status`   | `enum`   | See [Status Lifecycle](#6-status-lifecycle)                        |
+| `priority` | `enum`   | `critical` \| `high` \| `medium` \| `low`                          |
+| `created`  | `date`   | ISO 8601 date: `YYYY-MM-DD`                                        |
+| `updated`  | `date`   | ISO 8601 date of last meaningful change                            |
 
-### Label Conventions (recommended, not enforced)
-
-| Label              | Meaning                                |
-|--------------------|----------------------------------------|
-| `bug`              | Something is broken                    |
-| `feat`             | New feature                            |
-| `chore`            | Maintenance, deps, refactor            |
-| `docs`             | Documentation only                     |
-| `blocked`          | Cannot proceed (use with `blocked-by`) |
-| `good-first-issue` | Suitable for newcomers                 |
+Projects may add any additional fields (e.g. `assignee`, `labels`, `estimate`, `due`, `epic`, `blocked-by`). Frontmatter keys should use **kebab-case** to ensure consistency across tools and projects.
 
 ---
 
-## 5. Status Lifecycle
+## 6. Status Lifecycle
 
 ```plaintext
-icebox ──► todo ──► in-progress ──► review ──► done
-                        │                        ▲
-                        └──────► blocked ────────┘
-                                      │
-                                 cancelled
+icebox --> todo --> in-progress --> review --> done
+                       |                       ^
+                       +------> blocked -------+
+                                   |
+                              cancelled
 ```
 
 | Status        | Meaning                                       |
@@ -170,14 +157,12 @@ icebox ──► todo ──► in-progress ──► review ──► done
 | `in-progress` | Actively being worked on                      |
 | `review`      | PR open or awaiting peer/QA review            |
 | `done`        | Accepted and complete                         |
-| `blocked`     | Cannot proceed; `blocked-by` must be set      |
+| `blocked`     | Cannot proceed; `blocked-by` should be set    |
 | `cancelled`   | Will not be done; reason noted in Description |
-
-**Rule:** A transition from any status to `done` or `cancelled` requires updating the `updated` field.
 
 ---
 
-## 6. Naming Conventions
+## 7. Naming Conventions
 
 ### Issue files
 
@@ -189,29 +174,31 @@ Examples: `PROJ-001.md`, `API-042.md`, `BUG-007.md`
 
 The **ID** follows the pattern `{PREFIX}-{NUMBER}`:
 
-- `PREFIX`: 2–6 uppercase letters identifying the project or category
+- `PREFIX`: 2-6 uppercase letters identifying the project or category
 - `NUMBER`: zero-padded to 3 digits minimum (`001`, `042`, `100`)
+- New issue number = highest existing number with the same prefix + 1
 
 > Do not rename files after creation. The filename is the stable external reference.
 
-### Sprint files
+---
 
-```plaintext
-{YYYY}-S{NN}.md          # e.g. 2026-S01.md  (sequential)
-{YYYY}-W{WW}.md          # e.g. 2026-W09.md  (ISO week)
+## 8. Epics
+
+An epic groups related issues into a deliverable phase — a coherent chunk of work that can be planned, completed, and reviewed together before moving on to the next phase.
+
+Issues reference an epic via the `epic` frontmatter field:
+
+```yaml
+epic: EP-01-auth
 ```
 
-### Epic files
+Epic files live in `.plank/epics/` and follow the naming pattern `{EPIC-ID}-{slug}.md` (e.g. `EP-01-auth.md`). The format and content of epic files is not prescribed — projects decide what works for them.
 
-```plaintext
-{EPIC-ID}-{slug}.md      # e.g. EP-01-auth.md
-```
+Epics are optional. Use them when you need a level of structure above individual issues.
 
 ---
 
-## 7. Linking & Relations
-
-### Intra-repo links
+## 9. Linking & Relations
 
 Reference issues by ID in prose or frontmatter:
 
@@ -226,25 +213,13 @@ blocked-by: [PROJ-039]
 blocks: [PROJ-045, PROJ-046]
 ```
 
-For tools that support wiki-style links (Obsidian, Foam):
-
-```markdown
-See [[PROJ-039]] for context.
-```
-
-### Cross-repo links
-
-Use full relative paths or URLs:
-
-```yaml
-blocked-by: ["https://github.com/org/other-repo/blob/main/.plank/issues/TASK-012.md"]
-```
-
 ---
 
-## 8. Git Conventions
+## 10. Conventions
 
-### Commit message format
+The following are recommended practices, not requirements. They reduce communication cost when adopted consistently.
+
+### Commit messages
 
 ```plaintext
 plank({ID}): {action} [{new-status}]
@@ -255,71 +230,29 @@ Examples:
 ```plaintext
 plank(PROJ-042): create issue
 plank(PROJ-042): start work [in-progress]
-plank(PROJ-042): open for review [review]
 plank(PROJ-042): close as done [done]
-plank(PROJ-042): add comment
 ```
 
-### Branch naming
+This enables `git log --grep="plank(PROJ-042)"` to retrieve the full history of any issue.
 
-```plaintext
-plank/{ID}-{short-slug}
-```
+### Comment format
 
-Example: `plank/PROJ-042-dark-mode-toggle`
-
-### Pull Request title
-
-When a PR resolves an issue, include the ID:
-
-```plaintext
-feat: dark mode toggle [PROJ-042]
-```
-
-### Auto-close keyword (GitHub)
-
-```plaintext
-closes .plank/issues/PROJ-042.md
-```
-
-> Standard GitHub `closes #N` syntax does not apply to file-based issues. Teams may automate status updates via GitHub Actions by parsing commit messages for the `plank({ID})` pattern.
-
----
-
-## 9. Sprint & Milestone Files
-
-Sprint files aggregate issue references and capture velocity targets.
+Append comments under `## Notes / Comments` using:
 
 ```markdown
----
-id: 2026-S01
-title: Sprint 01 — Auth Foundation
-start: 2026-02-24
-end: 2026-03-07
-goal: Ship user authentication end-to-end
-capacity: 24
----
-
-# Sprint 01 — Auth Foundation
-
-## Goal
-Ship user authentication end-to-end (registration, login, JWT refresh).
-
-## Issues
-
-| ID       | Title             | Assignee | Estimate | Status      |
-|----------|-------------------|----------|----------|-------------|
-| PROJ-039 | JWT middleware    | wei-chen | 3        | done        |
-| PROJ-042 | Dark mode toggle  | yu-jung  | 3        | in-progress |
-| PROJ-043 | Registration form | yu-jung  | 5        | todo        |
-
-## Retrospective
-*(filled at sprint close)*
+### {ISO-date} @{author}
+{comment body}
 ```
 
+This keeps async communication chronological and grep-friendly.
+
+### Updating the `updated` field
+
+Any frontmatter field change must update `updated`. Adding a comment alone does not require it.
+
 ---
 
-## 10. Consuming This Standard
+## 11. Consuming This Standard
 
 ### For AI agents / automation
 
@@ -333,8 +266,7 @@ The response is plain `text/markdown`. Parse frontmatter fields with any YAML li
 
 ### Discovering PLANK in a repo
 
-A PLANK-compliant repo **must** contain `.plank/` at the root.
-A consuming tool **should** check for `.plank/issues/` and treat its contents as the issue store.
+A PLANK-compliant repo **must** contain `.plank/issues/` at the root.
 
 ### Minimal conformance checklist
 
@@ -344,52 +276,17 @@ A repo is PLANK-compliant if it satisfies:
 - [ ] Every issue file has `id`, `title`, `status`, `priority`, `created`, `updated` in frontmatter
 - [ ] `id` matches the filename (e.g. `PROJ-042.md` has `id: PROJ-042`)
 - [ ] `status` is one of the seven defined values
+- [ ] Frontmatter keys use kebab-case
 - [ ] No issue file is renamed after creation
-
-### Recommended tooling
-
-| Tool                | Purpose                                      |
-|---------------------|----------------------------------------------|
-| `grep` / `ripgrep`  | Query issues by any frontmatter field        |
-| `yq`                | Parse and mutate YAML frontmatter from shell |
-| GitHub Actions      | Automate status transitions on PR events     |
-| Obsidian + Dataview | Visual kanban and query dashboard            |
-| Backlog.md          | CLI + web kanban for PLANK-style repos       |
-
-### Example: list all `in-progress` issues (shell)
-
-```sh
-rg 'status: in-progress' .plank/issues/ -l
-```
-
-### Example: mark an issue done (yq)
-
-```sh
-yq -i '.status = "done" | .updated = "'$(date +%F)'"' .plank/issues/PROJ-042.md
-```
-
----
-
-## 11. Minimal vs Full Layout
-
-| Feature                        | Minimal     | Full |
-|--------------------------------|-------------|------|
-| Issue files                    | ✅ required | ✅   |
-| YAML Frontmatter (core fields) | ✅ required | ✅   |
-| Sprint files                   | ❌ optional | ✅   |
-| Epic files                     | ❌ optional | ✅   |
-| Git commit convention          | ❌ optional | ✅   |
-| Branch naming convention       | ❌ optional | ✅   |
-
-Start minimal. Add layers as the team grows.
 
 ---
 
 ## 12. Changelog
 
-| Version | Date       | Notes           |
-|---------|------------|-----------------|
-| 1.0.0   | 2026-02-26 | Initial release |
+| Version | Date       | Notes                                                         |
+|---------|------------|---------------------------------------------------------------|
+| 1.1.0   | 2026-03-06 | Add Zen; add Epics; trim optional fields; clarify conventions |
+| 1.0.0   | 2026-02-26 | Initial release                                               |
 
 ---
 
