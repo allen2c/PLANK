@@ -7,7 +7,8 @@ Any repo that follows this spec can be read, written, and automated by humans, C
 
 ## The Spec
 
-→ **[PLANK.md](./PLANK.md)**
+→ **[PLANK.md](./PLANK.md)** — the minimal shared contract
+→ **[PLANK_BLACK.md](./PLANK_BLACK.md)** — the opinionated strict superset
 
 ## Quick Start
 
@@ -39,6 +40,12 @@ Fetch the spec before operating on any PLANK-compliant repo:
 
 ```
 GET https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK.md
+```
+
+If the project follows PLANK BLACK, also fetch:
+
+```
+GET https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK_BLACK.md
 ```
 
 ---

@@ -1,7 +1,7 @@
 # PLANK Standard
 
 **Plaintext Local Agile Notes & Kanban**
-Version: 1.1.0 | License: CC0
+Version: 1.2.0 | License: CC0
 
 > A file-system-native project management standard for Git repositories.
 > Any repo that follows this spec can be read, written, and automated by humans, CLI tools, and AI agents without external services.
@@ -21,7 +21,8 @@ Version: 1.1.0 | License: CC0
 9. [Linking & Relations](#9-linking--relations)
 10. [Conventions](#10-conventions)
 11. [Consuming This Standard](#11-consuming-this-standard)
-12. [Changelog](#12-changelog)
+12. [PLANK BLACK](#12-plank-black)
+13. [Changelog](#13-changelog)
 
 ---
 
@@ -160,6 +161,8 @@ icebox --> todo --> in-progress --> review --> done
 | `blocked`     | Cannot proceed; `blocked-by` should be set    |
 | `cancelled`   | Will not be done; reason noted in Description |
 
+`done` and `cancelled` are **terminal states**. Once a ticket reaches either state, it should not be reopened — create a new ticket and reference the original instead.
+
 ---
 
 ## 7. Naming Conventions
@@ -213,6 +216,8 @@ blocked-by: [PROJ-039]
 blocks: [PROJ-045, PROJ-046]
 ```
 
+When using both `blocked-by` and `blocks`, keep them **symmetric**: if A lists B in `blocked-by`, then B should list A in `blocks`, and vice versa.
+
 ---
 
 ## 10. Conventions
@@ -248,7 +253,7 @@ This keeps async communication chronological and grep-friendly.
 
 ### Updating the `updated` field
 
-Any frontmatter field change must update `updated`. Adding a comment alone does not require it.
+Any frontmatter field change **must** update `updated` to the current date. Adding a comment alone does not require it.
 
 ---
 
@@ -260,6 +265,12 @@ Any agent should begin a session by fetching this spec:
 
 ```plaintext
 GET https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK.md
+```
+
+If the project follows PLANK BLACK, also fetch:
+
+```plaintext
+GET https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK_BLACK.md
 ```
 
 The response is plain `text/markdown`. Parse frontmatter fields with any YAML library.
@@ -281,14 +292,26 @@ A repo is PLANK-compliant if it satisfies:
 
 ---
 
-## 12. Changelog
+## 12. PLANK BLACK
 
-| Version | Date       | Notes                                                         |
-|---------|------------|---------------------------------------------------------------|
-| 1.1.0   | 2026-03-06 | Add Zen; add Epics; trim optional fields; clarify conventions |
-| 1.0.0   | 2026-02-26 | Initial release                                               |
+PLANK defines the minimum shared contract. **PLANK BLACK** is the opinionated strict superset — there is only one way to do things, and that is the best way.
+
+A project that follows PLANK BLACK automatically conforms to PLANK. PLANK BLACK adds mandatory workflows, stricter transition rules, and session protocols that eliminate ambiguity.
+
+> **[PLANK_BLACK.md](./PLANK_BLACK.md)**
+
+---
+
+## 13. Changelog
+
+| Version | Date       | Notes                                                             |
+|---------|------------|-------------------------------------------------------------------|
+| 1.2.0   | 2026-03-15 | Add terminal state rule; symmetric linking; introduce PLANK BLACK |
+| 1.1.0   | 2026-03-06 | Add Zen; add Epics; trim optional fields; clarify conventions     |
+| 1.0.0   | 2026-02-26 | Initial release                                                   |
 
 ---
 
 *PLANK is released under CC0. Copy, fork, adapt freely.*
 *Canonical spec: `https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK.md`*
+*GitHub Pages: `https://allen2c.github.io/PLANK/PLANK`*
