@@ -1,0 +1,17 @@
+{
+  "name": "plank-marketplace",
+  "owner": {
+    "name": "Allen Chou"
+  },
+  "metadata": {
+    "description": "PLANK — Plaintext Local Agile Notes & Kanban. File-system-native project management for Git repositories."
+  },
+  "plugins": [
+    {
+      "name": "plank",
+      "source": "./",
+      "description": "PLANK — Plaintext Local Agile Notes & Kanban with optional PLANK BLACK strict mode",
+      "version": "1.0.0"
+    }
+  ]
+}

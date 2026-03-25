@@ -38,7 +38,7 @@ updated: 2026-02-26
 
 ```plaintext
 /plugin marketplace add allen2c/PLANK
-/plugin install plank
+/plugin install plank@plank-marketplace
 ```
 
 This gives you two skills:
