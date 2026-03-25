@@ -34,17 +34,31 @@ updated: 2026-02-26
 ...
 ```
 
+## Install as Claude Code Plugin
+
+```plaintext
+/plugin marketplace add allen2c/PLANK
+/plugin install plank
+```
+
+This gives you two skills:
+
+| Skill       | Command              | Description                                    |
+|-------------|----------------------|------------------------------------------------|
+| PLANK       | `/plank:plank`       | Manage issues using the minimal PLANK standard |
+| PLANK BLACK | `/plank:plank-black` | Enforce the strict PLANK BLACK workflow        |
+
 ## For AI Agents
 
 Fetch the spec before operating on any PLANK-compliant repo:
 
-```
+```plaintext
 GET https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK.md
 ```
 
 If the project follows PLANK BLACK, also fetch:
 
-```
+```plaintext
 GET https://raw.githubusercontent.com/allen2c/PLANK/main/PLANK_BLACK.md
 ```
 

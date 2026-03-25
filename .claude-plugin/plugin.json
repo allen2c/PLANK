@@ -1,0 +1,13 @@
+{
+  "name": "plank",
+  "version": "1.0.0",
+  "description": "PLANK — Plaintext Local Agile Notes & Kanban. File-system-native project management for Git repositories, with optional PLANK BLACK strict mode.",
+  "author": {
+    "name": "Allen Chou",
+    "url": "https://github.com/allen2c"
+  },
+  "homepage": "https://allen2c.github.io/PLANK/PLANK",
+  "repository": "https://github.com/allen2c/PLANK",
+  "license": "CC0-1.0",
+  "keywords": ["project-management", "kanban", "agile", "plaintext", "markdown", "plank"]
+}
